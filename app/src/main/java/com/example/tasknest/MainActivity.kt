@@ -68,6 +68,9 @@ import com.example.tasknest.settings.UserPreferences
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.ui.platform.LocalContext
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,7 +92,22 @@ class MainActivity : ComponentActivity() {
                 var selectedTab by remember { mutableStateOf("Dashboard") }
                 var selectedTask by remember { mutableStateOf<TaskEntity?>(null) }
 
+                val context = LocalContext.current
+                val scope = rememberCoroutineScope()
+                val snackbarHostState = remember { SnackbarHostState() }
+
+                val onShare: (TaskEntity) -> Unit = { task ->
+                    val opened = shareTask(context, task)
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            if (opened) "Sharing \"${task.title}\"…"
+                            else "No app available to share with"
+                        )
+                    }
+                }
+
                 Scaffold(
+                    snackbarHost = { SnackbarHost(snackbarHostState) },
                     bottomBar = {
                         if (selectedTask == null) {
                             NavigationBar {
@@ -136,6 +154,7 @@ class MainActivity : ComponentActivity() {
                             TaskDetailsScreen(
                                 task = selectedTask!!,
                                 repository = repository,
+                                onShare = onShare,
                                 onBack = {
                                     selectedTask = null
                                 },
@@ -151,7 +170,8 @@ class MainActivity : ComponentActivity() {
                                 "Dashboard" -> TaskNestDashboard(
                                     repository,
                                     userName = prefs.userName,
-                                    defaultPriority = prefs.defaultPriority
+                                    defaultPriority = prefs.defaultPriority,
+                                    onShare = onShare
                                 )
 
                                 "Schedule" -> {
@@ -179,7 +199,8 @@ class MainActivity : ComponentActivity() {
 fun TaskNestDashboard(
     repository: TaskRepository,
     userName: String = "",
-    defaultPriority: String = "Medium"
+    defaultPriority: String = "Medium",
+    onShare: (TaskEntity) -> Unit = {}
 ) {
     val tasks by repository.allTasks.collectAsState(initial = emptyList())
     var selectedFilter by remember { mutableStateOf("All") }
@@ -616,6 +637,7 @@ fun TaskNestDashboard(
                             )
                         }
                     },
+                    onShare = { onShare(task) },
                     onDelete = {
                         scope.launch {
                             repository.deleteTask(task)
@@ -676,6 +698,7 @@ private fun SummaryCard(
 private fun TaskCard(
     task: TaskEntity,
     onCompletionChanged: (Boolean) -> Unit,
+    onShare: () -> Unit,
     onDelete: () -> Unit
 ) {
     Card(
@@ -749,11 +772,16 @@ private fun TaskCard(
                     }
                 )
 
-                TextButton(onClick = onDelete) {
-                    Text(
-                        text = "Delete",
-                        color = MaterialTheme.colorScheme.error
-                    )
+                Row {
+                    TextButton(onClick = onShare) {
+                        Text("Share")
+                    }
+                    TextButton(onClick = onDelete) {
+                        Text(
+                            text = "Delete",
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
             }
         }
