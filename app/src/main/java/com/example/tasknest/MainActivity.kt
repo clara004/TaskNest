@@ -1,4 +1,3 @@
-
 package com.example.tasknest
 
 import android.os.Bundle
@@ -65,6 +64,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import com.example.tasknest.settings.UserPreferences
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.ui.platform.LocalContext
+import androidx.activity.compose.BackHandler
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,13 +79,44 @@ class MainActivity : ComponentActivity() {
 
         val database = TaskDatabase.getDatabase(applicationContext)
         val repository = TaskRepository(database.taskDao())
+        val prefs = UserPreferences(applicationContext)
 
         setContent {
-            MaterialTheme {
+            val darkTheme = when (prefs.themeMode) {
+                "Dark" -> true
+                "Light" -> false
+                else -> isSystemInDarkTheme()
+            }
+            MaterialTheme (
+                colorScheme = if (darkTheme) darkColorScheme() else lightColorScheme()
+            ) {
                 var selectedTab by remember { mutableStateOf("Dashboard") }
                 var selectedTask by remember { mutableStateOf<TaskEntity?>(null) }
 
+                BackHandler(enabled = selectedTask != null || selectedTab != "Dashboard") {
+                    if (selectedTask != null) {
+                        selectedTask = null
+                    } else {
+                        selectedTab = "Dashboard"
+                    }
+                }
+
+                val context = LocalContext.current
+                val scope = rememberCoroutineScope()
+                val snackbarHostState = remember { SnackbarHostState() }
+
+                val onShare: (TaskEntity) -> Unit = { task ->
+                    val opened = shareTask(context, task)
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            if (opened) "Sharing \"${task.title}\"…"
+                            else "No app available to share with"
+                        )
+                    }
+                }
+
                 Scaffold(
+                    snackbarHost = { SnackbarHost(snackbarHostState) },
                     bottomBar = {
                         if (selectedTask == null) {
                             NavigationBar {
@@ -103,6 +141,13 @@ class MainActivity : ComponentActivity() {
                                         Text("Schedule")
                                     }
                                 )
+
+                                NavigationBarItem(
+                                    selected = selectedTab == "Settings",
+                                    onClick = { selectedTab = "Settings" },
+                                    icon = { Text("⚙️") },
+                                    label = { Text("Settings") }
+                                )
                             }
                         }
                     }
@@ -118,6 +163,7 @@ class MainActivity : ComponentActivity() {
                             TaskDetailsScreen(
                                 task = selectedTask!!,
                                 repository = repository,
+                                onShare = onShare,
                                 onBack = {
                                     selectedTask = null
                                 },
@@ -130,9 +176,12 @@ class MainActivity : ComponentActivity() {
                         } else {
 
                             when (selectedTab) {
-                                "Dashboard" -> {
-                                    TaskNestDashboard(repository)
-                                }
+                                "Dashboard" -> TaskNestDashboard(
+                                    repository,
+                                    userName = prefs.userName,
+                                    defaultPriority = prefs.defaultPriority,
+                                    onShare = onShare
+                                )
 
                                 "Schedule" -> {
                                     ScheduleScreen(
@@ -141,6 +190,10 @@ class MainActivity : ComponentActivity() {
                                             selectedTask = task
                                         }
                                     )
+                                }
+
+                                "Settings" -> {
+                                    SettingsScreen(prefs)
                                 }
                             }
                         }
@@ -152,7 +205,12 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun TaskNestDashboard(repository: TaskRepository) {
+fun TaskNestDashboard(
+    repository: TaskRepository,
+    userName: String = "",
+    defaultPriority: String = "Medium",
+    onShare: (TaskEntity) -> Unit = {}
+) {
     val tasks by repository.allTasks.collectAsState(initial = emptyList())
     var selectedFilter by remember { mutableStateOf("All") }
 
@@ -167,7 +225,7 @@ fun TaskNestDashboard(repository: TaskRepository) {
     var title by remember { mutableStateOf("") }
     var subject by remember { mutableStateOf("") }
     var dueDate by remember { mutableStateOf("") }
-    var priority by remember { mutableStateOf("Medium") }
+    var priority by remember { mutableStateOf(defaultPriority) }
     var formError by remember { mutableStateOf<String?>(null) }
     var showDatePicker by remember { mutableStateOf(false) }
 
@@ -254,7 +312,7 @@ fun TaskNestDashboard(repository: TaskRepository) {
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Your study life, organized.",
+                        text = if (userName.isBlank()) "Your study life, organized." else "Hi, $userName 👋",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -487,7 +545,7 @@ fun TaskNestDashboard(repository: TaskRepository) {
                                             title = ""
                                             subject = ""
                                             dueDate = ""
-                                            priority = "Medium"
+                                            priority = defaultPriority
                                             formError = null
                                             showForm = false
                                         }
@@ -588,6 +646,7 @@ fun TaskNestDashboard(repository: TaskRepository) {
                             )
                         }
                     },
+                    onShare = { onShare(task) },
                     onDelete = {
                         scope.launch {
                             repository.deleteTask(task)
@@ -648,6 +707,7 @@ private fun SummaryCard(
 private fun TaskCard(
     task: TaskEntity,
     onCompletionChanged: (Boolean) -> Unit,
+    onShare: () -> Unit,
     onDelete: () -> Unit
 ) {
     Card(
@@ -721,11 +781,16 @@ private fun TaskCard(
                     }
                 )
 
-                TextButton(onClick = onDelete) {
-                    Text(
-                        text = "Delete",
-                        color = MaterialTheme.colorScheme.error
-                    )
+                Row {
+                    TextButton(onClick = onShare) {
+                        Text("Share")
+                    }
+                    TextButton(onClick = onDelete) {
+                        Text(
+                            text = "Delete",
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
             }
         }

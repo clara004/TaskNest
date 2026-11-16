@@ -20,7 +20,8 @@ fun TaskDetailsScreen(
     task: TaskEntity,
     repository: TaskRepository,
     onBack: () -> Unit,
-    onDeleted: () -> Unit
+    onDeleted: () -> Unit,
+    onShare: (TaskEntity) -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
 
@@ -349,6 +350,17 @@ fun TaskDetailsScreen(
                         "Mark as Completed"
                     }
                 )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Share button
+            OutlinedButton(
+                onClick = { onShare(currentTask) },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp)
+            ) {
+                Text("Share Task")
             }
 
             Spacer(modifier = Modifier.height(12.dp))
