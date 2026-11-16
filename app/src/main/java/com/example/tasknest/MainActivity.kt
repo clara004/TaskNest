@@ -1,4 +1,3 @@
-
 package com.example.tasknest
 
 import android.os.Bundle
@@ -66,6 +65,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import com.example.tasknest.settings.UserPreferences
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,7 +78,14 @@ class MainActivity : ComponentActivity() {
         val prefs = UserPreferences(applicationContext)
 
         setContent {
-            MaterialTheme {
+            val darkTheme = when (prefs.themeMode) {
+                "Dark" -> true
+                "Light" -> false
+                else -> isSystemInDarkTheme()
+            }
+            MaterialTheme (
+                colorScheme = if (darkTheme) darkColorScheme() else lightColorScheme()
+            ) {
                 var selectedTab by remember { mutableStateOf("Dashboard") }
                 var selectedTask by remember { mutableStateOf<TaskEntity?>(null) }
 
@@ -139,9 +148,11 @@ class MainActivity : ComponentActivity() {
                         } else {
 
                             when (selectedTab) {
-                                "Dashboard" -> {
-                                    TaskNestDashboard(repository, userName = prefs.userName)
-                                }
+                                "Dashboard" -> TaskNestDashboard(
+                                    repository,
+                                    userName = prefs.userName,
+                                    defaultPriority = prefs.defaultPriority
+                                )
 
                                 "Schedule" -> {
                                     ScheduleScreen(
@@ -165,7 +176,11 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun TaskNestDashboard(repository: TaskRepository, userName: String = "") {
+fun TaskNestDashboard(
+    repository: TaskRepository,
+    userName: String = "",
+    defaultPriority: String = "Medium"
+) {
     val tasks by repository.allTasks.collectAsState(initial = emptyList())
     var selectedFilter by remember { mutableStateOf("All") }
 
@@ -180,7 +195,7 @@ fun TaskNestDashboard(repository: TaskRepository, userName: String = "") {
     var title by remember { mutableStateOf("") }
     var subject by remember { mutableStateOf("") }
     var dueDate by remember { mutableStateOf("") }
-    var priority by remember { mutableStateOf("Medium") }
+    var priority by remember { mutableStateOf(defaultPriority) }
     var formError by remember { mutableStateOf<String?>(null) }
     var showDatePicker by remember { mutableStateOf(false) }
 
@@ -500,7 +515,7 @@ fun TaskNestDashboard(repository: TaskRepository, userName: String = "") {
                                             title = ""
                                             subject = ""
                                             dueDate = ""
-                                            priority = "Medium"
+                                            priority = defaultPriority
                                             formError = null
                                             showForm = false
                                         }

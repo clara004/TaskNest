@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.tasknest.settings.UserPreferences
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.FilterChip
 
 @Composable
 fun SettingsScreen(prefs: UserPreferences) {
@@ -53,6 +55,27 @@ fun SettingsScreen(prefs: UserPreferences) {
 
         if (savedMessage.isNotEmpty()) {
             Text(savedMessage, color = MaterialTheme.colorScheme.primary)
+        }
+        Text("Default priority for new tasks", style = MaterialTheme.typography.titleSmall)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            listOf("Low", "Medium", "High").forEach { option ->
+                FilterChip(
+                    selected = prefs.defaultPriority == option,
+                    onClick = { prefs.updateDefaultPriority(option) },
+                    label = { Text(option) }
+                )
+            }
+        }
+
+        Text("Theme", style = MaterialTheme.typography.titleSmall)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            listOf("System", "Light", "Dark").forEach { option ->
+                FilterChip(
+                    selected = prefs.themeMode == option,
+                    onClick = { prefs.updateThemeMode(option) },
+                    label = { Text(option) }
+                )
+            }
         }
     }
 }
