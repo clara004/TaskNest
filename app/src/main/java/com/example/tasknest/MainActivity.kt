@@ -65,6 +65,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import com.example.tasknest.settings.UserPreferences
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,6 +73,7 @@ class MainActivity : ComponentActivity() {
 
         val database = TaskDatabase.getDatabase(applicationContext)
         val repository = TaskRepository(database.taskDao())
+        val prefs = UserPreferences(applicationContext)
 
         setContent {
             MaterialTheme {
@@ -103,6 +105,13 @@ class MainActivity : ComponentActivity() {
                                         Text("Schedule")
                                     }
                                 )
+
+                                NavigationBarItem(
+                                    selected = selectedTab == "Settings",
+                                    onClick = { selectedTab = "Settings" },
+                                    icon = { Text("⚙️") },
+                                    label = { Text("Settings") }
+                                )
                             }
                         }
                     }
@@ -131,7 +140,7 @@ class MainActivity : ComponentActivity() {
 
                             when (selectedTab) {
                                 "Dashboard" -> {
-                                    TaskNestDashboard(repository)
+                                    TaskNestDashboard(repository, userName = prefs.userName)
                                 }
 
                                 "Schedule" -> {
@@ -141,6 +150,10 @@ class MainActivity : ComponentActivity() {
                                             selectedTask = task
                                         }
                                     )
+                                }
+
+                                "Settings" -> {
+                                    SettingsScreen(prefs)
                                 }
                             }
                         }
@@ -152,7 +165,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun TaskNestDashboard(repository: TaskRepository) {
+fun TaskNestDashboard(repository: TaskRepository, userName: String = "") {
     val tasks by repository.allTasks.collectAsState(initial = emptyList())
     var selectedFilter by remember { mutableStateOf("All") }
 
@@ -254,7 +267,7 @@ fun TaskNestDashboard(repository: TaskRepository) {
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Your study life, organized.",
+                        text = if (userName.isBlank()) "Your study life, organized." else "Hi, $userName 👋",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
