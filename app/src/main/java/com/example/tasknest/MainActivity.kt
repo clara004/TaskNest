@@ -71,6 +71,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.ui.platform.LocalContext
+import androidx.activity.compose.BackHandler
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,6 +92,14 @@ class MainActivity : ComponentActivity() {
             ) {
                 var selectedTab by remember { mutableStateOf("Dashboard") }
                 var selectedTask by remember { mutableStateOf<TaskEntity?>(null) }
+
+                BackHandler(enabled = selectedTask != null || selectedTab != "Dashboard") {
+                    if (selectedTask != null) {
+                        selectedTask = null
+                    } else {
+                        selectedTab = "Dashboard"
+                    }
+                }
 
                 val context = LocalContext.current
                 val scope = rememberCoroutineScope()
