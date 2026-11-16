@@ -58,7 +58,13 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
-
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,11 +75,76 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MaterialTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    TaskNestDashboard(repository)
+                var selectedTab by remember { mutableStateOf("Dashboard") }
+                var selectedTask by remember { mutableStateOf<TaskEntity?>(null) }
+
+                Scaffold(
+                    bottomBar = {
+                        if (selectedTask == null) {
+                            NavigationBar {
+                                NavigationBarItem(
+                                    selected = selectedTab == "Dashboard",
+                                    onClick = { selectedTab = "Dashboard" },
+                                    icon = {
+                                        Text("🏠")
+                                    },
+                                    label = {
+                                        Text("Dashboard")
+                                    }
+                                )
+
+                                NavigationBarItem(
+                                    selected = selectedTab == "Schedule",
+                                    onClick = { selectedTab = "Schedule" },
+                                    icon = {
+                                        Text("📅")
+                                    },
+                                    label = {
+                                        Text("Schedule")
+                                    }
+                                )
+                            }
+                        }
+                    }
+                ) { innerPadding ->
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                    ) {
+                        if (selectedTask != null) {
+
+                            TaskDetailsScreen(
+                                task = selectedTask!!,
+                                repository = repository,
+                                onBack = {
+                                    selectedTask = null
+                                },
+                                onDeleted = {
+                                    selectedTask = null
+                                    selectedTab = "Schedule"
+                                }
+                            )
+
+                        } else {
+
+                            when (selectedTab) {
+                                "Dashboard" -> {
+                                    TaskNestDashboard(repository)
+                                }
+
+                                "Schedule" -> {
+                                    ScheduleScreen(
+                                        repository = repository,
+                                        onTaskClick = { task ->
+                                            selectedTask = task
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
