@@ -1,6 +1,7 @@
 package com.example.tasknest.settings
 
 import android.content.Context
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -32,6 +33,16 @@ class UserPreferences(context: Context) {
     fun updateThemeMode(value: String) {
         themeMode = value
         prefs.edit().putString(KEY_THEME, value).apply()
+        applyNightMode(value)
+    }
+
+    fun applyNightMode(mode: String = themeMode) {
+        val nightMode = when (mode) {
+            "Dark" -> AppCompatDelegate.MODE_NIGHT_YES
+            "Light" -> AppCompatDelegate.MODE_NIGHT_NO
+            else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        }
+        AppCompatDelegate.setDefaultNightMode(nightMode)
     }
 
     private companion object {

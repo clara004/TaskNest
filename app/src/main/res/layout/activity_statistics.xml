@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_scroll_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:fitsSystemWindows="true"
+    android:background="?android:attr/colorBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="24dp">
+
+        <!-- Top Header: Back Button, Title, Subtitle, and TN Avatar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="20dp">
+
+            <ImageButton
+                android:id="@+id/btn_back"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_arrow_back"
+                app:tint="?attr/colorOnSurface"
+                android:contentDescription="Back"
+                android:padding="10dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Statistics"
+                    android:textSize="30sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorPrimary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Real-time productivity overview"
+                    android:textSize="14sp"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+            </LinearLayout>
+
+            <!-- Matching circular "TN" avatar from the Home Dashboard -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp"
+                app:cardBackgroundColor="?attr/colorPrimaryContainer">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="TN"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="?attr/colorOnPrimaryContainer" />
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+        <!-- Overview Hero Banner (identical to Dashboard Welcome Card) -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="?attr/colorPrimary">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="YOUR PROGRESS OVERVIEW"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.08"
+                    android:textColor="?attr/colorOnPrimary"
+                    android:alpha="0.8" />
+
+                <TextView
+                    android:id="@+id/tv_overview_headline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Let's get things done."
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnPrimary" />
+
+                <TextView
+                    android:id="@+id/tv_progress_subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="0 of 0 tasks completed · 0%"
+                    android:textSize="14sp"
+                    android:textColor="?attr/colorOnPrimary" />
+
+                <!-- Material 3 Rounded Progress Indicator -->
+                <com.google.android.material.progressindicator.LinearProgressIndicator
+                    android:id="@+id/progress_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:max="100"
+                    android:progress="0"
+                    app:trackThickness="8dp"
+                    app:trackCornerRadius="4dp"
+                    app:indicatorColor="?attr/colorOnPrimary"
+                    app:trackColor="#38FFFFFF" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Section Title: Your Tasks -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Your tasks"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnSurface"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Summary Cards Row (matching Dashboard SummaryCards) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <!-- Total Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp"
+                app:cardBackgroundColor="?attr/colorSecondaryContainer">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:paddingVertical="16dp"
+                    android:paddingHorizontal="10dp">
+
+                    <TextView
+                        android:id="@+id/tv_total_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="26sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSecondaryContainer" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Total"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSecondaryContainer" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Pending Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="3dp"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp"
+                app:cardBackgroundColor="?attr/colorSecondaryContainer">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:paddingVertical="16dp"
+                    android:paddingHorizontal="10dp">
+
+                    <TextView
+                        android:id="@+id/tv_pending_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="26sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSecondaryContainer" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Pending"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSecondaryContainer" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Done Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp"
+                app:cardBackgroundColor="?attr/colorSecondaryContainer">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:paddingVertical="16dp"
+                    android:paddingHorizontal="10dp">
+
+                    <TextView
+                        android:id="@+id/tv_completed_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="26sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSecondaryContainer" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Done"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSecondaryContainer" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <!-- Section Title: Priority Breakdown -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Priority breakdown"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnSurface"
+            android:layout_marginBottom="10dp" />
+
+        <!-- Priority Breakdown Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp">
+
+            <!-- High Priority Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp"
+                app:cardBackgroundColor="?attr/colorErrorContainer">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="HIGH PRIORITY"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.05"
+                        android:textColor="?attr/colorOnErrorContainer" />
+
+                    <TextView
+                        android:id="@+id/tv_high_priority_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="0 pending"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnErrorContainer" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Other Pending Tasks Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp"
+                app:cardBackgroundColor="?attr/colorTertiaryContainer">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="NORMAL PRIORITY"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.05"
+                        android:textColor="?attr/colorOnTertiaryContainer" />
+
+                    <TextView
+                        android:id="@+id/tv_normal_priority_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="0 pending"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnTertiaryContainer" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <!-- Insights Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="?attr/colorOutline"
+            app:cardBackgroundColor="?attr/colorSurface">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="💡 STUDY INSIGHT"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.06"
+                    android:textColor="?attr/colorPrimary" />
+
+                <TextView
+                    android:id="@+id/tv_insight_message"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Analyzing your tasks..."
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="3dp"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Share Report Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_share_stats"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="Share Progress Report"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:cornerRadius="14dp"
+            android:backgroundTint="?attr/colorPrimary"
+            android:textColor="?attr/colorOnPrimary" />
+
+        <!-- Back to Dashboard Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_close"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="10dp"
+            android:text="Back to Dashboard"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:cornerRadius="14dp"
+            app:strokeColor="?attr/colorOutline"
+            android:textColor="?attr/colorPrimary" />
+
+        <!-- Footer -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="8dp"
+            android:gravity="center"
+            android:text="TaskNest · Stay focused, one task at a time."
+            android:textSize="12sp"
+            android:textColor="?attr/colorOnSurfaceVariant" />
+
+    </LinearLayout>
+</ScrollView>

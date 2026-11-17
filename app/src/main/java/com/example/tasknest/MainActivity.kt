@@ -1,5 +1,6 @@
 package com.example.tasknest
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -80,6 +81,7 @@ class MainActivity : ComponentActivity() {
         val database = TaskDatabase.getDatabase(applicationContext)
         val repository = TaskRepository(database.taskDao())
         val prefs = UserPreferences(applicationContext)
+        prefs.applyNightMode()
 
         setContent {
             val darkTheme = when (prefs.themeMode) {
@@ -169,7 +171,6 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onDeleted = {
                                     selectedTask = null
-                                    selectedTab = "Schedule"
                                 }
                             )
 
@@ -180,7 +181,10 @@ class MainActivity : ComponentActivity() {
                                     repository,
                                     userName = prefs.userName,
                                     defaultPriority = prefs.defaultPriority,
-                                    onShare = onShare
+                                    onShare = onShare,
+                                    onTaskClick = { task ->
+                                        selectedTask = task
+                                    }
                                 )
 
                                 "Schedule" -> {
@@ -209,7 +213,8 @@ fun TaskNestDashboard(
     repository: TaskRepository,
     userName: String = "",
     defaultPriority: String = "Medium",
-    onShare: (TaskEntity) -> Unit = {}
+    onShare: (TaskEntity) -> Unit = {},
+    onTaskClick: (TaskEntity) -> Unit = {}
 ) {
     val tasks by repository.allTasks.collectAsState(initial = emptyList())
     var selectedFilter by remember { mutableStateOf("All") }
@@ -412,6 +417,20 @@ fun TaskNestDashboard(
                     count = completedCount,
                     modifier = Modifier.weight(1f)
                 )
+            }
+        }
+
+        item {
+            val context = LocalContext.current
+            OutlinedButton(
+                onClick = {
+                    val intent = Intent(context, StatisticsActivity::class.java)
+                    context.startActivity(intent)
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp)
+            ) {
+                Text("📊 View Task Statistics")
             }
         }
 
@@ -638,6 +657,7 @@ fun TaskNestDashboard(
             ) { task ->
                 TaskCard(
                     task = task,
+                    onTaskClick = { onTaskClick(task) },
                     onCompletionChanged = { completed ->
                         scope.launch {
                             repository.setTaskCompleted(
@@ -706,12 +726,15 @@ private fun SummaryCard(
 @Composable
 private fun TaskCard(
     task: TaskEntity,
+    onTaskClick: () -> Unit,
     onCompletionChanged: (Boolean) -> Unit,
     onShare: () -> Unit,
     onDelete: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onTaskClick() },
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
@@ -750,6 +773,14 @@ private fun TaskCard(
                 }
 
                 PriorityLabel(priority = task.priority)
+
+                Spacer(modifier = Modifier.width(6.dp))
+
+                Text(
+                    text = "›",
+                    fontSize = 24.sp,
+                    color = MaterialTheme.colorScheme.primary
+                )
             }
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 10.dp))
